@@ -508,6 +508,10 @@ body {
         display: block;
     }
 
+    .card2 {
+        width: 90%;
+    }
+
     .card2 img{
         width: 90%;
         height: auto;
@@ -520,4 +524,5 @@ body {
         text-align: center;
 }
 }
+
 

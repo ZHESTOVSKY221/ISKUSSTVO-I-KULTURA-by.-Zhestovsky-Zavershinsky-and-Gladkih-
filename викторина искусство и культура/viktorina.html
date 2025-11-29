@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Арт-Викторина: Искусство и культура</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Georgia', serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #ff00ee, #ff0000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #b8b8b8;
+            margin-bottom: 20px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .active {
+            display: block;
+        }
+
+        .welcome-screen {
+            text-align: center;
+        }
+
+        .welcome-screen h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            color: #e6dada;
+        }
+
+        .welcome-screen p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #cccccc;
+        }
+
+        .art-preview {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        .art-item {
+            width: 150px;
+            height: 150px;
+            margin: 10px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease;
+        }
+
+        .art-item:hover {
+            transform: scale(1.05);
+        }
+
+        .art-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .question-screen .question-text {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .option {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 15px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .option:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            background: rgba(106, 17, 203, 0.3);
+            border-color: #6a11cb;
+        }
+
+        .option.correct {
+            background: rgba(46, 204, 113, 0.3);
+            border-color: #2ecc71;
+        }
+
+        .option.incorrect {
+            background: rgba(231, 76, 60, 0.3);
+            border-color: #e74c3c;
+        }
+
+        .option .checkmark {
+            margin-left: auto;
+            color: #2ecc71;
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: none;
+        }
+
+        .option.correct .checkmark {
+            display: block;
+        }
+
+        .timer {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #ffcc00;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .results-screen {
+            text-align: center;
+        }
+
+        .score {
+            font-size: 3rem;
+            margin: 20px 0;
+            color: #ffcc00;
+        }
+
+        .result-text {
+            font-size: 1.4rem;
+            margin-bottom: 30px;
+        }
+
+        .art-fact {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .art-fact h3 {
+            color: #6a11cb;
+            margin-bottom: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .art-item {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .question-text {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Арт-Викторина</h1>
+            <p class="subtitle">Проверьте свои знания в искусстве и культуре</p>
+        </header>
+
+        <div class="game-container">
+            <!-- Экран приветствия -->
+            <div class="screen welcome-screen active">
+                <h2>Добро пожаловать в мир искусства!</h2>
+                <p>Пройдите увлекательную викторину, чтобы проверить свои знания в области живописи, архитектуры, музыки и других видов искусства. Ответьте на 10 вопросов и узнайте, насколько вы разбираетесь в культуре!</p>
+                
+                <div class="art-preview">
+                    <div class="art-item" style="background: linear-gradient(45deg, #ff9a9e, #fad0c4);"></div>
+                    <div class="art-item" style="background: linear-gradient(45deg, #a1c4fd, #c2e9fb);"></div>
+                    <div class="art-item" style="background: linear-gradient(45deg, #ffecd2, #fcb69f);"></div>
+                    <div class="art-item" style="background: linear-gradient(45deg, #84fab0, #8fd3f4);"></div>
+                </div>
+                
+                <button class="btn start-btn">Начать викторину</button>
+            </div>
+
+            <!-- Экран с вопросами -->
+            <div class="screen question-screen">
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+                <div class="timer">Осталось времени: <span id="time">30</span> сек.</div>
+                <h2 class="question-text">Вопрос</h2>
+                <div class="options-container">
+                    <!-- Варианты ответов будут добавляться динамически -->
+                </div>
+                <button class="btn next-btn" disabled>Следующий вопрос</button>
+            </div>
+
+            <!-- Экран результатов -->
+            <div class="screen results-screen">
+                <h2>Викторина завершена!</h2>
+                <div class="score">0/10</div>
+                <p class="result-text">Результат</p>
+                
+                <div class="art-fact">
+                    <h3>Интересный факт об искусстве</h3>
+                    <p id="art-fact-text">Загрузка интересного факта...</p>
+                </div>
+                
+                <button class="btn restart-btn">Пройти еще раз</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Вопросы для викторины
+        const questions = [
+            {
+                question: "Кто написал картину 'Звездная ночь'?",
+                options: ["Пабло Пикассо", "Винсент Ван Гог", "Клод Моне", "Леонардо да Винчи"],
+                correct: 1
+            },
+            {
+                question: "В каком городе находится музей Лувр?",
+                options: ["Лондон", "Рим", "Париж", "Берлин"],
+                correct: 2
+            },
+            {
+                question: "Кто является автором скульптуры 'Давид'?",
+                options: ["Донателло", "Микеланджело", "Бернини", "Роден"],
+                correct: 1
+            },
+            {
+                question: "Какая из этих картин принадлежит кисти Леонардо да Винчи?",
+                options: ["Крик", "Герника", "Мона Лиза", "Постоянство памяти"],
+                correct: 2
+            },
+            {
+                question: "В каком стиле написана картина 'Авиньонские девицы' Пабло Пикассо?",
+                options: ["Импрессионизм", "Кубизм", "Сюрреализм", "Фовизм"],
+                correct: 1
+            },
+            {
+                question: "Кто является архитектором собора Святого Петра в Ватикане?",
+                options: ["Донато Браманте", "Филиппо Брунеллески", "Антонио Гауди", "Франк Ллойд Райт"],
+                correct: 0
+            },
+            {
+                question: "Какая опера написана Вольфгангом Амадеем Моцартом?",
+                options: ["Кармен", "Травиата", "Волшебная флейта", "Тоска"],
+                correct: 2
+            },
+            {
+                question: "Кто является автором балета 'Лебединое озеро'?",
+                options: ["Игорь Стравинский", "Петр Чайковский", "Сергей Прокофьев", "Морис Равель"],
+                correct: 1
+            },
+            {
+                question: "В каком веке жил и творил Рембрандт?",
+                options: ["XVI век", "XVII век", "XVIII век", "XIX век"],
+                correct: 1
+            },
+            {
+                question: "Какое художественное направление основал Сальвадор Дали?",
+                options: ["Футуризм", "Сюрреализм", "Экспрессионизм", "Дадаизм"],
+                correct: 1
+            }
+        ];
+
+        // Интересные факты об искусстве
+        const artFacts = [
+            "Самая дорогая картина в мире - 'Спаситель мира' Леонардо да Винчи, проданная за 450 миллионов долларов в 2017 году.",
+            "Винсент Ван Гог продал только одну картину при жизни - 'Красные виноградники в Арле'.",
+            "Микеланджело изобразил себя в образе снятой кожи на фреске 'Страшный суд' в Сикстинской капелле.",
+            "Мона Лиза была похищена из Лувра в 1911 году и возвращена только через два года.",
+            "Сальвадор Дали создал логотип для конфет Chupa Chups.",
+            "Эдвард Мунк создал четыре версии своей знаменитой картины 'Крик'.",
+            "Леонардо да Винчи писал 'Тайную вечерю' на сухой стене, а не на влажной штукатурке, поэтому фреска начала разрушаться уже при жизни художника."
+        ];
+
+        // Элементы DOM
+        const welcomeScreen = document.querySelector('.welcome-screen');
+        const questionScreen = document.querySelector('.question-screen');
+        const resultsScreen = document.querySelector('.results-screen');
+        const startBtn = document.querySelector('.start-btn');
+        const nextBtn = document.querySelector('.next-btn');
+        const restartBtn = document.querySelector('.restart-btn');
+        const questionText = document.querySelector('.question-text');
+        const optionsContainer = document.querySelector('.options-container');
+        const progressBar = document.querySelector('.progress');
+        const timerElement = document.getElementById('time');
+        const scoreElement = document.querySelector('.score');
+        const resultText = document.querySelector('.result-text');
+        const artFactText = document.getElementById('art-fact-text');
+
+        // Переменные игры
+        let currentQuestion = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 30;
+        let answerSelected = false;
+
+        // Запуск игры
+        startBtn.addEventListener('click', startGame);
+        nextBtn.addEventListener('click', nextQuestion);
+        restartBtn.addEventListener('click', restartGame);
+
+        function startGame() {
+            currentQuestion = 0;
+            score = 0;
+            showScreen(questionScreen);
+            loadQuestion();
+            startTimer();
+        }
+
+        function loadQuestion() {
+            // Сброс состояния
+            answerSelected = false;
+            
+            // Сброс таймера
+            clearInterval(timer);
+            timeLeft = 30;
+            timerElement.textContent = timeLeft;
+            
+            // Обновление прогресса
+            const progress = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            // Загрузка вопроса
+            const question = questions[currentQuestion];
+            questionText.textContent = question.question;
+            
+            // Очистка контейнера с вариантами ответов
+            optionsContainer.innerHTML = '';
+            
+            // Добавление вариантов ответов
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.classList.add('option');
+                optionElement.textContent = option;
+                optionElement.dataset.index = index;
+                
+                // Добавляем элемент для галочки
+                const checkmark = document.createElement('span');
+                checkmark.classList.add('checkmark');
+                checkmark.textContent = '✓';
+                optionElement.appendChild(checkmark);
+                
+                optionElement.addEventListener('click', selectOption);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Сброс кнопки "Следующий вопрос"
+            nextBtn.disabled = true;
+            
+            // Запуск таймера
+            startTimer();
+        }
+
+        function selectOption(e) {
+            if (answerSelected) return;
+            
+            answerSelected = true;
+            clearInterval(timer);
+            
+            const selectedOption = e.currentTarget;
+            const selectedIndex = parseInt(selectedOption.dataset.index);
+            const correctIndex = questions[currentQuestion].correct;
+            
+            // Снятие выделения со всех вариантов
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => option.classList.remove('selected'));
+            
+            // Выделение выбранного варианта
+            selectedOption.classList.add('selected');
+            
+            // Проверка правильности ответа
+            if (selectedIndex === correctIndex) {
+                selectedOption.classList.add('correct');
+                score++;
+            } else {
+                selectedOption.classList.add('incorrect');
+                
+                // Показываем правильный ответ с галочкой
+                options[correctIndex].classList.add('correct');
+            }
+            
+            // Активация кнопки "Следующий вопрос"
+            nextBtn.disabled = false;
+        }
+
+        function nextQuestion() {
+            // Переход к следующему вопросу или завершение игры
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            showScreen(resultsScreen);
+            
+            // Отображение счета
+            scoreElement.textContent = `${score}/${questions.length}`;
+            
+            // Отображение текста результата
+            let resultMessage = "";
+            if (score === questions.length) {
+                resultMessage = "Потрясающе! Вы настоящий знаток искусства!";
+            } else if (score >= questions.length * 0.7) {
+                resultMessage = "Отличный результат! Вы хорошо разбираетесь в искусстве!";
+            } else if (score >= questions.length * 0.5) {
+                resultMessage = "Хороший результат! Продолжайте изучать искусство!";
+            } else {
+                resultMessage = "Есть куда стремиться! Искусство - это увлекательный мир для изучения!";
+            }
+            resultText.textContent = resultMessage;
+            
+            // Отображение случайного факта об искусстве
+            const randomFact = artFacts[Math.floor(Math.random() * artFacts.length)];
+            artFactText.textContent = randomFact;
+        }
+
+        function restartGame() {
+            showScreen(welcomeScreen);
+        }
+
+        function showScreen(screen) {
+            // Скрыть все экраны
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // Показать нужный экран
+            screen.classList.add('active');
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                timeLeft--;
+                timerElement.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    if (!answerSelected) {
+                        // Автоматически выбираем первый вариант при истечении времени
+                        const options = document.querySelectorAll('.option');
+                        if (options.length > 0) {
+                            options[0].click();
+                        }
+                    }
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
